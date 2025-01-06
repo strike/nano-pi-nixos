@@ -114,13 +114,14 @@
           networking = {
             hostName = "nano-pi";
             useDHCP = false;
+            enableIPv6 = false;
             firewall = {
               enable = true;
               interfaces = {
-                enP1p1s0.allowedTCPPorts = [ 22 ];
-                enP2p1s0.allowedTCPPorts = [ 22 ];
+                enP1p1s0.allowedTCPPorts = [ 22 8123 8020 ];
+                enP2p1s0.allowedTCPPorts = [ 22 8123 8020 ];
                 ${config.services.tailscale.interfaceName}.allowedTCPPorts =
-                  [ 22 ];
+                  [ 22 443 ];
               };
               allowedUDPPorts = [ config.services.tailscale.port ];
             };
