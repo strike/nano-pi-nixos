@@ -88,10 +88,39 @@
               };
             };
             tailscale.enable = true;
+            deluge = {
+              enable = true;
+              user = "astrike";
+              dataDir = "/storage/deluge";
+              web = {
+                enable = true;
+                port = 8112;
+              };
+            };
+            plex = {
+              enable = true;
+              openFirewall = true;
+              dataDir = "/storage/plex";
+            };
+          };
+
+          systemd.services.deluged = {
+            after = [ "mnt-storage.mount" ];
+            wants = [ "mnt-storage.mount" ];
+          };
+
+          systemd.services.plex = {
+            after = [ "mnt-storage.mount" ];
+            wants = [ "mnt-storage.mount" ];
           };
 
           fileSystems = {
             "/" = { device = "/dev/disk/by-partlabel/rootfs"; };
+            "/storage" = {
+              device = "/dev/disk/by-uuid/f7afc8bf-552f-444c-b541-ee3a4f826e67";
+              fsType = "ext4";
+              options = [ "nofail" "defaults" ];
+            };
           };
 
           nix.settings.experimental-features = [ "nix-command" "flakes" ];
@@ -118,14 +147,15 @@
             firewall = {
               enable = true;
               interfaces = {
-                enP1p1s0.allowedTCPPorts = [ 22 8123 8020 ];
-                enP2p1s0.allowedTCPPorts = [ 22 8123 8020 ];
+                enP1p1s0.allowedTCPPorts = [ 22 8123 8020 8112 32400 ];
+                enP2p1s0.allowedTCPPorts = [ 22 8123 8020 8112 32400 ];
                 ${config.services.tailscale.interfaceName}.allowedTCPPorts =
                   [ 22 443 ];
               };
               allowedUDPPorts = [ config.services.tailscale.port ];
             };
           };
+
           systemd.network = {
             enable = true;
             wait-online.enable = false;
@@ -154,6 +184,7 @@
             tmux
             git
             lm_sensors
+            nixfmt-classic
           ];
           nixpkgs.config.allowUnfree = true;
           virtualisation.docker.enable = true;
